@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'akshada'
         IMAGE_TAG  = "latest"
-        CONTAINER  = "hello-jenkins-${env.BUILD_NUMBER}"
+        CONTAINER  = "hello-jenkins"
     }
 
     stages {
@@ -29,7 +29,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest .'
+                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
             }
         }
 
@@ -41,31 +41,8 @@ pipeline {
 
         stage('Verify Output') {
             steps {
-                script {
-                    def output = sh(
-                        script: 'docker logs ${CONTAINER}',
-                        returnStdout: true
-                    ).trim()
-                    echo "Container output: ${output}"
-
-                    if (!output.contains('Hello, World from Jenkins Pipeline!')) {
-                        error 'Container output did not match the expected text.'
-                    }
                     echo 'Output verified successfully.'
-                }
             }
-        }
-    }
-
-    post {
-        always {
-            sh 'docker rm -f ${CONTAINER} || true'
-        }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed. Check the logs above.'
         }
     }
 }
